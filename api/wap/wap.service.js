@@ -27,6 +27,8 @@ async function query(filterBy = { owner: '' }) {
                     chatStartingMsg: wap.chatStartingMsg,
                     isPublished: wap.isPublished,
                     owner: wap.owner,
+                    demoData: wap.demoData,
+                    visitors: wap.visitors,
                 })
                 return acc
             }, [])
@@ -89,6 +91,19 @@ async function add(wap) {
     }
 }
 
+async function duplicateWap(wap) {
+    try {
+        const collection = await dbService.getCollection('wap')
+        wap.isPublished = false
+        wap.name = `${wap.name} - copy`
+        await collection.insertOne(wap)
+        return wap
+    } catch (err) {
+        logger.error('cannot duplicate wap', err)
+        throw err
+    }
+}
+
 async function update(wap) {
     try {
         const wapToSave = {
@@ -100,6 +115,7 @@ async function update(wap) {
             msgs: wap.msgs,
             schedule: wap.schedule,
             themeClass: wap.themeClass,
+            visitors: wap.visitors,
         }
 
         if (wap.cmps) wapToSave.cmps = wap.cmps
@@ -151,6 +167,7 @@ module.exports = {
     add,
     update,
     getByUrl,
+    duplicateWap,
     // addCarMsg,
     // removeCarMsg
 }
